@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>GDG Trailblazer Admin</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script type="text/javascript">
+    function fetchAccessToken()
+    {
+
+    }
+    </script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>GDG Trailblazer Admin</h1>
+      <div class="well">
+        <div class="form-group">
+          <div class="input-group">
+            <div class="input-group-addon"><i class="fa fa-lock"></i> Trailblazer API Base URL</div>
+            <input class="form-control" type="text" id="api_base_url" placeholder="http://thebaseurl:9000/path"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="input-group">
+            <div class="input-group-addon"><i class="fa fa-lock"></i> Access Token</div>
+            <input class="form-control" type="text" id="access_token" placeholder="Put your access token here.."/>
+          </div>
+        </div>
+        <legend>Fetch new access token</legend>
+        <form onsubmit="fetchAccessToken(); return false;" class="form-inline">
+          <div class="input-group">
+            <div class="input-group-addon"><i class="fa fa-envelope"></i> Email</div>
+            <input class="form-control" type="text" name="email" placeholder="Your email address"/>
+          </div>
+          <div class="input-group">
+            <div class="input-group-addon"><i class="fa fa-key"></i> Password</div>
+            <input class="form-control" type="password" name="password" placeholder="Your password"/>
+          </div>
+          <button type="submit" class="btn btn-success"><i id="fetch_token_icon" class="fa fa-refresh"></i> Fetch Access Token</button>
+        </form>
+      </div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  </body>
+</html>
