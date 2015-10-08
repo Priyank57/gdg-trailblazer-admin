@@ -1,8 +1,8 @@
 angular.module("trailblazer",["ngCookies"]);
 
-var trailblazer = angular.module("trailblazer");
-
-trailblazer.controller("addEventController",
-["$scope","$http","UrlService",function($scope,$http,UrlService){
-  
+angular.module("trailblazer").run(["$http","AccessTokenService",function($http,AccessTokenService) {
+  $http.defaults.headers.common.Authorization = 'Bearer ' + AccessTokenService.getToken();
+  AccessTokenService.addTokenChangeListener(function(){
+      $http.defaults.headers.common.Authorization = 'Bearer ' + AccessTokenService.getToken();
+  });
 }]);

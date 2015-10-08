@@ -12,7 +12,7 @@ trailblazer.service('UrlService',["$cookies",function($cookies){
     },
     notifyBaseUrlChange : function(){
       for(var i = 0; i < this.baseUrlChangeListeners.length; i++)
-        this.baseUrlChangeListeners[i](this.getBaseUrl());
+        this.baseUrlChangeListeners[i]();
     },
     addBaseUrlChangeListener : function(callback){
       this.baseUrlChangeListeners.push(callback);

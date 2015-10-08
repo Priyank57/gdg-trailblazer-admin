@@ -12,7 +12,7 @@ trailblazer.service('AccessTokenService',["$cookies",function($cookies){
     },
     notifyTokenChange : function(){
       for(var i = 0; i < this.tokenChangeListeners.length; i++)
-        this.tokenChangeListeners[i](this.getToken());
+        this.tokenChangeListeners[i]();
     },
     addTokenChangeListener : function(callback){
       this.tokenChangeListeners.push(callback);

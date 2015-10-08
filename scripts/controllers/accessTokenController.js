@@ -1,19 +1,9 @@
 var trailblazer = angular.module("trailblazer");
 
-trailblazer.run(["$http","AccessTokenService",function($http,AccessTokenService) {
-  AccessTokenService.addTokenChangeListener(function(newToken){
-    if(newToken)
-      $http.defaults.headers.common.Authorization = 'Bearer ' + newToken;
-  });
-}]);
-
 trailblazer.controller("accessTokenController",
 ["$scope","$http","$cookies","UrlService","AccessTokenService",
 function($scope,$http,$cookies,UrlService,AccessTokenService){
-  AccessTokenService.addTokenChangeListener(function(newToken){
-    $scope.accessToken = newToken;
-  });
-  AccessTokenService.updateToken(AccessTokenService.getToken());
+  $scope.accessToken = AccessTokenService.getToken();
   $scope.hasError = false;
   $scope.success = "";
   $scope.error = "";

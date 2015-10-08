@@ -1,8 +1,8 @@
 var trailblazer = angular.module("trailblazer");
 
 trailblazer.controller('eventsController',
-["$scope","$http","UrlService",
-function($scope,$http,UrlService){
+["$scope","$http","UrlService","AccessTokenService",
+function($scope,$http,UrlService,AccessTokenService){
   $scope.events = [];
   $scope.hasError = false;
   $scope.error = "";
@@ -61,7 +61,7 @@ function($scope,$http,UrlService){
     };
   $scope.fetchEvents();
   UrlService.addBaseUrlChangeListener($scope.fetchEvents);
-
+  AccessTokenService.addTokenChangeListener($scope.fetchEvents);
   $scope.eventDetails = function(event){
     $scope.activeEvent = event;
     if(event.location)

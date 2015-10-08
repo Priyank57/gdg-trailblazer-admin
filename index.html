@@ -14,6 +14,12 @@
       <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
+    <style type="text/css">
+    .label
+    {
+      margin:3px;
+    }
+    </style>
   </head>
   <body ng-app="trailblazer">
     <div class="container">
@@ -32,6 +38,7 @@
               <input class="form-control" type="text" ng-model="accessToken" ng-change="changeAccessToken()" placeholder="Put your access token here.."/>
             </div>
           </div>
+          <div class="alert alert-info">Without sufficient permissions, you may not be able to use some features.</div>
           <legend>Fetch new access token</legend>
           <p class="text-danger"  ng-bind="error"></p>
           <p class="text-success"  ng-bind="success"></p>
@@ -58,7 +65,7 @@
           <small ng-show="hasError" ng-bind="error" class="text-danger"></small>
         </h3>
         <button class="btn btn-success" onclick="$('#add_event_modal').modal()"><i class="fa fa-plus"></i> Add New Event</button>
-        <div style="max-height:200px;overflow-y:scroll;">
+        <div style="max-height:400px;overflow-y:scroll;">
         <table class="table table-hover table-bordered table-responsive">
           <thead>
             <tr>
@@ -310,6 +317,166 @@
           </div>
         </div>
       </div>
+      <div ng-controller="usersController">
+        <h3>Users
+          <span ng-show="loading"><i class="fa fa-spin fa-spinner"></i></span>
+          <small ng-bind="error" class="text-danger"></small>
+        </h3>
+        <div style="max-height:400px;overflow-y:scroll;">
+          <table class="table table-hover table-bordered table-responsive">
+            <thead>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Email Verified At</th>
+              <th>Mobile</th>
+              <th>City</th>
+              <th>Technologies</th>
+              <th>Joined At</th>
+              <th>Permissions</th>
+            </thead>
+            <tbody>
+              <tr ng-repeat="user in users">
+                <td ng-bind="user.first_name +' '+ user.last_name"></td>
+                <td ng-bind="user.email"></td>
+                <td>
+                  <span data-toggle="tooltip" title="{{fullDate(user.email_verified_at)}}" ng-bind="smallDate(user.email_verified_at)"></span>
+                </td>
+                <td ng-bind="user.mobile"></td>
+                <td ng-bind="user.city"></td>
+                <td>
+                  <span class="label label-primary" ng-repeat="t in user.technologies" ng-bind="t"></span>
+                </td>
+                <td>
+                  <span data-toggle="tooltip" title="{{fullDate(user.created_at)}}" ng-bind="smallDate(user.created_at)"></span>
+                </td>
+                <td>
+                  <b>Self : </b>
+                  <span ng-repeat="p in user.permissions.self" ng-bind="p" class="label label-primary"></span>
+                  <br />
+                  <b>Users : </b>
+                  <span ng-repeat="p in user.permissions.users" ng-bind="p" class="label label-success"></span>
+                  <br />
+                  <b>Events : </b>
+                  <span ng-repeat="p in user.permissions.events" ng-bind="p" class="label label-warning"></span>
+                  <br/>
+                  <a href="#" ng-click="managePermissions(user)">Manage Permissions</a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="modal fade" id="manage_permissions_modal">
+          <div class="modal-dialog" style="width:60%;">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Manage User Permissions</h4>
+              </div>
+              <div class="modal-body">
+                <div class="row">
+                  <div class="col-md-4">
+                    <legend>Self</legend>
+                    <div class="checkbox">
+                      <label>
+                        <input type="checkbox" name="permissions.self[]" value="view"/>
+                        View
+                      </label>
+                    </div>
+                    <div class="checkbox">
+                      <label>
+                        <input type="checkbox" name="permissions.self[]" value="update" />
+                        Update
+                      </label>
+                    </div>
+                    <div class="checkbox">
+                      <label>
+                        <input type="checkbox" name="permissions.self[]" value="all" />
+                        <span class="text-danger">All (Wildcard, for all permissions)</span>
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <legend>Users</legend>
+                    <div class="checkbox">
+                      <label>
+                        <input type="checkbox" name="permissions.users[]" value="view" />
+                        View
+                      </label>
+                    </div>
+                    <div class="checkbox">
+                      <label>
+                        <input type="checkbox" name="permissions.users[]" value="update" />
+                        Update
+                      </label>
+                    </div>
+                    <div class="checkbox">
+                      <label>
+                        <input type="checkbox" name="permissions.users[]" value="manage_permissions" />
+                        <span class="text-danger">Manage Permissions</span>
+                      </label>
+                    </div>
+                    <div class="checkbox">
+                      <label>
+                        <input type="checkbox" name="permissions.users[]" value="all" />
+                        <span class="text-danger">All (Wildcard, for all permissions)</span>
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <legend>Events</legend>
+                    <div class="checkbox">
+                      <label>
+                        <input type="checkbox" name="permissions.events[]" value="view" />
+                        View
+                      </label>
+                    </div>
+                    <div class="checkbox">
+                      <label>
+                        <input type="checkbox" name="permissions.events[]" value="participate" />
+                        Participate
+                      </label>
+                    </div>
+                    <div class="checkbox">
+                      <label>
+                        <input type="checkbox" name="permissions.events[]" value="create" />
+                        <span class="text-warning">Create</span>
+                      </label>
+                    </div>
+                    <div class="checkbox">
+                      <label>
+                        <input type="checkbox" name="permissions.events[]" value="update" />
+                        Update
+                      </label>
+                    </div>
+                    <div class="checkbox">
+                      <label>
+                        <input type="checkbox" name="permissions.events[]" value="view_responses" />
+                        <span class="text-warning">View responses</span>
+                      </label>
+                    </div>
+                    <div class="checkbox">
+                      <label>
+                        <input type="checkbox" name="permissions.events[]" value="moderate_participants" />
+                        <span class="text-danger">Moderate Participants</span>
+                      </label>
+                    </div>
+                    <div class="checkbox">
+                      <label>
+                        <input type="checkbox" name="permissions.events[]" value="all" />
+                        <span class="text-danger">All (Wildcard, for all permissions)</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" ng-click="savePermissions()">Save</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="modal fade" id="add_event_modal">
       <div class="modal-dialog" style="width:80%;">
@@ -417,6 +584,7 @@
     <script src="scripts/controllers/accessTokenController.js"></script>
     <script src="scripts/controllers/eventsController.js"></script>
     <script src="scripts/controllers/newEventController.js"></script>
+    <script src="scripts/controllers/usersController.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/js/bootstrap-datetimepicker.min.js"></script>
     <script type="text/javascript">
       $(function(){
