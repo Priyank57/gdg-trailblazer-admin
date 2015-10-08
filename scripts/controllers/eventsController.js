@@ -18,13 +18,40 @@ function($scope,$http,UrlService){
   $scope.fullDate = function(date){
     return moment(date).format('dddd, Do MMM YYYY, h:mm A');
   };
-  $scope.fetchEvents = function(){
+  $scope.getParticipants = function(event,state)
+  {
+    if(event)
+      return _.where(event.participants,{participation_state:state});
+  };
+  $scope.findQuestion = function(event,q_id)
+  {
+    return _.findWhere(event.questions,{_id:q_id.toString()});
+  };
+  $scope.acceptParticipant = function(event_id,user_id)
+  {
+    $scope.manageParticipantsLoading = true;
+    $http.post(UrlService.generateUrl('events/'+event_id+'/accept_participation?_id='+user_id))
+    .then(
+      function(){
+        $scope.fetchEvents(function(){
+          $scope.activeEvent = _.findWhere($scope.events,{_id:event_id});
+          $scope.manageParticipantsLoading = false;
+        });
+      },
+      function(response){
+        alert(response.data.statusMessage);
+        $scope.manageParticipantsLoading = false;
+      }
+    );
+  }
+  $scope.fetchEvents = function(cb){
     $http.get(UrlService.generateUrl('events'),{})
     .then(
       function(response)
       {
         $scope.events = response.data.data;
         $scope.hasError = false;
+        if(cb) cb();
       },
       function(response)
       {
@@ -47,6 +74,11 @@ function($scope,$http,UrlService){
       $("#event_details_map").hide();
     }
     $("#event_details_modal").modal();
+  };
+  $scope.manageParticipants = function(event)
+  {
+    $scope.activeEvent = event;
+    $("#manage_participants_modal").modal();
   };
   $scope.editEvent = function(event)
   {
@@ -79,7 +111,8 @@ function($scope,$http,UrlService){
     .then(
       function(response)
       {
-        location.reload();
+        $scope.fetchEvents();
+        $("#edit_event_modal").modal('hide');
       },
       function(response)
       {
