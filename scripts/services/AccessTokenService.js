@@ -4,7 +4,7 @@ trailblazer.service('AccessTokenService',["$cookies",function($cookies){
   var AccessTokenService = {
     tokenChangeListeners : [],
     getToken : function(){
-      return $cookies.get("accessToken");
+      return $cookies.get("accessToken") || '';
     },
     updateToken : function(token){
       $cookies.put("accessToken",token);

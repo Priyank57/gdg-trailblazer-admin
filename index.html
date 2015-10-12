@@ -65,8 +65,8 @@
           <small ng-show="hasError" ng-bind="error" class="text-danger"></small>
         </h3>
         <button class="btn btn-success" onclick="$('#add_event_modal').modal()"><i class="fa fa-plus"></i> Add New Event</button>
-        <div style="max-height:400px;overflow-y:scroll;">
-        <table class="table table-hover table-bordered table-responsive">
+        <div style="max-height:400px;overflow-y:scroll;margin-top:10px;">
+        <table class="table table-hover table-responsive">
           <thead>
             <tr>
               <th>State</th>
@@ -78,7 +78,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr ng-repeat="event in events">
+            <tr ng-repeat="event in events" ng-class="{warning:event.cancelled_at != null,danger:event.deleted_at != null}">
               <td ng-bind="event.event_state | uppercase"></td>
               <td ng-bind="event.title" ng-click="eventDetails(event)"></td>
               <td>
@@ -99,7 +99,10 @@
                   <button ng-click="eventDetails(event)" class="btn btn-default btn-sm" title="View event details"><i class="fa fa-eye"></i></button>
                   <button class="btn btn-default btn-sm" title="Send notifications"><i class="fa fa-send"></i></button>
                   <button ng-click="editEvent(event)" class="btn btn-default btn-sm" title="Edit event details"><i class="fa fa-edit"></i></button>
-                  <button ng-click="cancelEvent(event)" class="btn btn-default btn-sm" title="Cancel event"><i class="fa fa-remove"></i></button>
+                  <button ng-hide="event.cancelled_at" ng-click="cancelEvent(event)" class="btn btn-default btn-sm btn-warning" title="Cancel event"><i class="fa fa-remove"></i></button>
+                  <button ng-show="event.cancelled_at" ng-click="revertCancelEvent(event)" class="btn btn-default btn-sm btn-warning" title="Revert cancellation"><i class="fa fa-recycle"></i></button>
+                  <button ng-hide="event.deleted_at" ng-click="deleteEvent(event)" class="btn btn-default btn-sm btn-danger" title="Delete event"><i class="fa fa-trash"></i></button>
+                  <button ng-show="event.deleted_at" ng-click="restoreEvent(event)" class="btn btn-default btn-sm btn-danger" title="Restore event"><i class="fa fa-recycle"></i></button>
                 </div>
               </td>
             </tr>
@@ -322,17 +325,19 @@
           <span ng-show="loading"><i class="fa fa-spin fa-spinner"></i></span>
           <small ng-bind="error" class="text-danger"></small>
         </h3>
-        <div style="max-height:400px;overflow-y:scroll;">
-          <table class="table table-hover table-bordered table-responsive">
+        <div >
+          <table class="table table-hover table-responsive">
             <thead>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Email Verified At</th>
-              <th>Mobile</th>
-              <th>City</th>
-              <th>Technologies</th>
-              <th>Joined At</th>
-              <th>Permissions</th>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Email Verified At</th>
+                <th>Mobile</th>
+                <th>City</th>
+                <th>Technologies</th>
+                <th>Joined At</th>
+                <th>Permissions</th>
+              </tr>
             </thead>
             <tbody>
               <tr ng-repeat="user in users">
@@ -349,17 +354,21 @@
                 <td>
                   <span data-toggle="tooltip" title="{{fullDate(user.created_at)}}" ng-bind="smallDate(user.created_at)"></span>
                 </td>
-                <td>
-                  <b>Self : </b>
-                  <span ng-repeat="p in user.permissions.self" ng-bind="p" class="label label-primary"></span>
-                  <br />
-                  <b>Users : </b>
-                  <span ng-repeat="p in user.permissions.users" ng-bind="p" class="label label-success"></span>
-                  <br />
-                  <b>Events : </b>
-                  <span ng-repeat="p in user.permissions.events" ng-bind="p" class="label label-warning"></span>
-                  <br/>
-                  <a href="#" ng-click="managePermissions(user)">Manage Permissions</a>
+                <td style="width:340px;">
+                  <div style="height:80px;overflow-y:scroll;">
+                    <a href="#" ng-click="managePermissions(user)">Manage Permissions</a><br/>
+                    <b>Users : </b>
+                    <span ng-repeat="p in user.permissions.users">
+                      <code ng-bind="p"></code>,
+                    </span>
+                    <br />
+                    <b>Events : </b>
+                    <span ng-repeat="p in user.permissions.events">
+                      <code ng-bind="p"></code>,
+                    </span>
+                    <br/>
+                    <a href="#" ng-click="managePermissions(user)">Manage Permissions</a>
+                  </div>
                 </td>
               </tr>
             </tbody>
@@ -374,96 +383,93 @@
               </div>
               <div class="modal-body">
                 <div class="row">
-                  <div class="col-md-4">
-                    <legend>Self</legend>
-                    <div class="checkbox">
-                      <label>
-                        <input type="checkbox" name="permissions.self[]" value="view"/>
-                        View
-                      </label>
-                    </div>
-                    <div class="checkbox">
-                      <label>
-                        <input type="checkbox" name="permissions.self[]" value="update" />
-                        Update
-                      </label>
-                    </div>
-                    <div class="checkbox">
-                      <label>
-                        <input type="checkbox" name="permissions.self[]" value="all" />
-                        <span class="text-danger">All (Wildcard, for all permissions)</span>
-                      </label>
-                    </div>
-                  </div>
-                  <div class="col-md-4">
+                  <div class="col-md-6">
                     <legend>Users</legend>
                     <div class="checkbox">
                       <label>
-                        <input type="checkbox" name="permissions.users[]" value="view" />
-                        View
+                        <input type="checkbox" name="permissions.users[]" value="read" />
+                        {{activeUser.first_name}} can read
                       </label>
                     </div>
                     <div class="checkbox">
                       <label>
                         <input type="checkbox" name="permissions.users[]" value="update" />
-                        Update
+                        {{activeUser.first_name}} can update
                       </label>
                     </div>
                     <div class="checkbox">
                       <label>
                         <input type="checkbox" name="permissions.users[]" value="manage_permissions" />
-                        <span class="text-danger">Manage Permissions</span>
+                        <span class="text-danger">{{activeUser.first_name}} can manage Permissions</span>
                       </label>
                     </div>
                     <div class="checkbox">
                       <label>
                         <input type="checkbox" name="permissions.users[]" value="all" />
-                        <span class="text-danger">All (Wildcard, for all permissions)</span>
+                        <span class="text-danger">All</span>
                       </label>
                     </div>
                   </div>
-                  <div class="col-md-4">
+                  <div class="col-md-6">
                     <legend>Events</legend>
                     <div class="checkbox">
                       <label>
-                        <input type="checkbox" name="permissions.events[]" value="view" />
-                        View
-                      </label>
-                    </div>
-                    <div class="checkbox">
-                      <label>
-                        <input type="checkbox" name="permissions.events[]" value="participate" />
-                        Participate
-                      </label>
-                    </div>
-                    <div class="checkbox">
-                      <label>
                         <input type="checkbox" name="permissions.events[]" value="create" />
-                        <span class="text-warning">Create</span>
+                        <span class="text-warning">{{activeUser.first_name}} can create</span>
+                      </label>
+                    </div>
+                    <div class="checkbox">
+                      <label>
+                        <input type="checkbox" name="permissions.events[]" value="read" />
+                        {{activeUser.first_name}} can read
                       </label>
                     </div>
                     <div class="checkbox">
                       <label>
                         <input type="checkbox" name="permissions.events[]" value="update" />
-                        Update
+                        {{activeUser.first_name}} can update
                       </label>
                     </div>
                     <div class="checkbox">
                       <label>
-                        <input type="checkbox" name="permissions.events[]" value="view_responses" />
-                        <span class="text-warning">View responses</span>
+                        <input type="checkbox" name="permissions.events[]" value="delete" />
+                        {{activeUser.first_name}} can delete
+                      </label>
+                    </div>
+                    <div class="checkbox">
+                      <label>
+                        <input type="checkbox" name="permissions.events[]" value="restore" />
+                        {{activeUser.first_name}} can restore deleted events
+                      </label>
+                    </div>
+                    <div class="checkbox">
+                      <label>
+                        <input type="checkbox" name="permissions.events[]" value="read_deleted" />
+                        {{activeUser.first_name}} can read deleted events
+                      </label>
+                    </div>
+                    <div class="checkbox">
+                      <label>
+                        <input type="checkbox" name="permissions.events[]" value="participate" />
+                        {{activeUser.first_name}} can participate in events
+                      </label>
+                    </div>
+                    <div class="checkbox">
+                      <label>
+                        <input type="checkbox" name="permissions.events[]" value="view_participants" />
+                        <span class="text-warning">{{activeUser.first_name}} can view participants</span>
                       </label>
                     </div>
                     <div class="checkbox">
                       <label>
                         <input type="checkbox" name="permissions.events[]" value="moderate_participants" />
-                        <span class="text-danger">Moderate Participants</span>
+                        <span class="text-danger">{{activeUser.first_name}} can moderate Participants</span>
                       </label>
                     </div>
                     <div class="checkbox">
                       <label>
                         <input type="checkbox" name="permissions.events[]" value="all" />
-                        <span class="text-danger">All (Wildcard, for all permissions)</span>
+                        <span class="text-danger">All</span>
                       </label>
                     </div>
                   </div>

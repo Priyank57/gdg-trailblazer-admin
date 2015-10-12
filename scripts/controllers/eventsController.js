@@ -56,7 +56,7 @@ function($scope,$http,UrlService,AccessTokenService){
       function(response)
       {
         $scope.error = response.data.statusMessage;
-        $scope.hasError = false;
+        $scope.hasError = true;
       });
     };
   $scope.fetchEvents();
@@ -123,11 +123,59 @@ function($scope,$http,UrlService,AccessTokenService){
         });
       }
     );};
+    $scope.deleteEvent = function(event)
+    {
+      if(!confirm("Are you sure you want to delete this event?"))
+        return 0;
+      $http.delete(UrlService.generateUrl('events/'+event._id))
+      .then(
+        function(response)
+        {
+          location.reload();
+        },
+        function(response)
+        {
+          alert(response.data.statusMessage);
+        }
+      );
+    };
     $scope.cancelEvent = function(event)
     {
       if(!confirm("Are you sure you want to cancel this event?"))
         return 0;
-      $http.delete(UrlService.generateUrl('events/'+event._id))
+      $http.put(UrlService.generateUrl('events/'+event._id+'/cancel'))
+      .then(
+        function(response)
+        {
+          location.reload();
+        },
+        function(response)
+        {
+          alert(response.data.statusMessage);
+        }
+      );
+    };
+    $scope.revertCancelEvent = function(event)
+    {
+      if(!confirm("Are you sure you want to revert cancellation of this event?"))
+        return 0;
+      $http.put(UrlService.generateUrl('events/'+event._id+'/revert_cancel'))
+      .then(
+        function(response)
+        {
+          location.reload();
+        },
+        function(response)
+        {
+          alert(response.data.statusMessage);
+        }
+      );
+    };
+    $scope.restoreEvent = function(event)
+    {
+      if(!confirm("Are you sure you want to restore this event?"))
+        return 0;
+      $http.put(UrlService.generateUrl('events/'+event._id+'/restore'))
       .then(
         function(response)
         {

@@ -4,6 +4,9 @@ trailblazer.controller("accessTokenController",
 ["$scope","$http","$cookies","UrlService","AccessTokenService",
 function($scope,$http,$cookies,UrlService,AccessTokenService){
   $scope.accessToken = AccessTokenService.getToken();
+  AccessTokenService.addTokenChangeListener(function(){
+    $scope.accessToken = AccessTokenService.getToken();
+  });
   $scope.hasError = false;
   $scope.success = "";
   $scope.error = "";
