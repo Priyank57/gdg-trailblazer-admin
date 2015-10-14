@@ -28,6 +28,8 @@ function($scope,$http,UrlService,AccessTokenService){
   UrlService.addBaseUrlChangeListener($scope.fetchUsers);
   AccessTokenService.addTokenChangeListener($scope.fetchUsers);
   $scope.fetchUsers();
+  $("#events_all_perms").change(function(){$scope.toggleAllPerms('events')});
+  $("#users_all_perms").change(function(){$scope.toggleAllPerms('users')});
   $scope.smallDate = function(date){
     return moment(date).format('Do MMM YY');
   };
@@ -42,8 +44,17 @@ function($scope,$http,UrlService,AccessTokenService){
       _.each(permissions,function(permission){
         $("input[name='permissions."+context+"[]'][value='"+permission+"']").prop("checked",true);
       });
+      if($("#"+context+"_all_perms").prop('checked'))
+        $("input[name='permissions."+context+"[]']").prop("checked",true);
     });
     $("#manage_permissions_modal").modal();
+  };
+  $scope.toggleAllPerms = function(context)
+  {
+    if($("#"+context+"_all_perms").prop('checked'))
+      $("input[name='permissions."+context+"[]']").prop("checked",true);
+    else
+      $("input[name='permissions."+context+"[]']").prop("checked",false);
   };
   $scope.savePermissions = function(){
     var permissions = {
@@ -52,10 +63,13 @@ function($scope,$http,UrlService,AccessTokenService){
       self:[]
     };
     _.each(permissions,function(perms,context){
-      $("input[name='permissions."+context+"[]']:checked").each(function ()
-      {
-          permissions[context].push($(this).val());
-      });
+      if($("#"+context+"_all_perms").prop('checked'))
+        permissions[context] = ["all"];
+      else
+        $("input[name='permissions."+context+"[]']:checked").each(function ()
+        {
+            permissions[context].push($(this).val());
+        });
     });
     $http.put(UrlService.generateUrl('users/'+$scope.activeUser._id),{permissions:permissions})
     .then(

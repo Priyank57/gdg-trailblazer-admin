@@ -28,6 +28,7 @@ function($scope,$http,UrlService){
       function(response)
       {
         $scope.error = response.data.statusMessage;
+        alert(response.data.statusMessage);
         _.each(response.data.errors,function(err){
           $scope.errors[err.field] = err.message;
         });

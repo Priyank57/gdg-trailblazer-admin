@@ -91,6 +91,7 @@
                 <div class="btn-group" ng-click="manageParticipants(event)">
                   <button class="btn btn-sm btn-warning" ng-bind="getParticipants(event,'requested').length + 0"></button>
                   <button class="btn btn-sm btn-primary" ng-bind="getParticipants(event,'accepted').length + 0"></button>
+                  <button class="btn btn-sm btn-danger" ng-bind="getParticipants(event,'declined').length + 0"></button>
                   <button class="btn btn-sm btn-success" ng-bind="getParticipants(event,'confirmed').length + 0"></button>
                 </div>
               </td>
@@ -118,16 +119,19 @@
               </div>
               <div class="modal-body">
                 <div class="row">
-                  <div class="col-md-4">
+                  <div class="col-md-3">
                     <legend>Requested</legend>
                     <div class="list-group">
                       <div ng-repeat="participant in getParticipants(activeEvent,'requested')" class="list-group-item">
                         <h4 class="list-group-item-heading">
                           <span ng-bind="participant.first_name+' '+participant.last_name"></span>
-                          <button ng-click="acceptParticipant(activeEvent._id,participant._id)" class="btn btn-success pull-right">
-                            <i class="fa fa-check"></i> Accept
-                          </button>
                         </h4>
+                        <button ng-click="acceptParticipant(activeEvent._id,participant._id)" class="btn btn-sm btn-success">
+                          <i class="fa fa-check"></i> Accept
+                        </button>
+                        <button ng-click="declineParticipant(activeEvent._id,participant._id)" class="btn btn-sm btn-danger">
+                          <i class="fa fa-remove"></i> Decline
+                        </button>
                         <h5 ng-bind="participant.email"></h5>
                         <p class="list-group-item-text">
                           <div ng-repeat="answer in participant.answers">
@@ -138,7 +142,7 @@
                       </div>
                     </div>
                   </div>
-                  <div class="col-md-4">
+                  <div class="col-md-3">
                     <legend>Accepted</legend>
                     <div class="list-group">
                       <div ng-repeat="participant in getParticipants(activeEvent,'accepted')" class="list-group-item">
@@ -155,7 +159,24 @@
                       </div>
                     </div>
                   </div>
-                  <div class="col-md-4">
+                  <div class="col-md-3">
+                    <legend>Declined</legend>
+                    <div class="list-group">
+                      <div ng-repeat="participant in getParticipants(activeEvent,'declined')" class="list-group-item">
+                        <h4 class="list-group-item-heading">
+                          <span ng-bind="participant.first_name+' '+participant.last_name"></span>
+                        </h4>
+                        <h5 ng-bind="participant.email"></h5>
+                        <p class="list-group-item-text">
+                          <div ng-repeat="answer in participant.answers">
+                            <b ng-bind="findQuestion(activeEvent,answer.question_id).question"></b><br />
+                            <p ng-bind="answer.answer"></p>
+                          </div>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
                     <legend>Confirmed</legend>
                     <div class="list-group">
                       <div ng-repeat="participant in getParticipants(activeEvent,'confirmed')" class="list-group-item">
@@ -405,7 +426,7 @@
                     </div>
                     <div class="checkbox">
                       <label>
-                        <input type="checkbox" name="permissions.users[]" value="all" />
+                        <input type="checkbox" id="users_all_perms" name="permissions.users[]" value="all" />
                         <span class="text-danger">All</span>
                       </label>
                     </div>
@@ -450,12 +471,6 @@
                     </div>
                     <div class="checkbox">
                       <label>
-                        <input type="checkbox" name="permissions.events[]" value="participate" />
-                        {{activeUser.first_name}} can participate in events
-                      </label>
-                    </div>
-                    <div class="checkbox">
-                      <label>
                         <input type="checkbox" name="permissions.events[]" value="view_participants" />
                         <span class="text-warning">{{activeUser.first_name}} can view participants</span>
                       </label>
@@ -468,7 +483,7 @@
                     </div>
                     <div class="checkbox">
                       <label>
-                        <input type="checkbox" name="permissions.events[]" value="all" />
+                        <input type="checkbox" id="events_all_perms" name="permissions.events[]" value="all" />
                         <span class="text-danger">All</span>
                       </label>
                     </div>

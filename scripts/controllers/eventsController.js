@@ -44,6 +44,23 @@ function($scope,$http,UrlService,AccessTokenService){
       }
     );
   }
+  $scope.declineParticipant = function(event_id,user_id)
+  {
+    $scope.manageParticipantsLoading = true;
+    $http.post(UrlService.generateUrl('events/'+event_id+'/decline_participation?_id='+user_id))
+    .then(
+      function(){
+        $scope.fetchEvents(function(){
+          $scope.activeEvent = _.findWhere($scope.events,{_id:event_id});
+          $scope.manageParticipantsLoading = false;
+        });
+      },
+      function(response){
+        alert(response.data.statusMessage);
+        $scope.manageParticipantsLoading = false;
+      }
+    );
+  }
   $scope.fetchEvents = function(cb){
     $http.get(UrlService.generateUrl('events'),{})
     .then(
